@@ -1,0 +1,27 @@
+{
+  "appId": "app.lago.cycle",
+  "appName": "LaGo",
+  "webDir": "dist/mobile",
+  "server": {
+    "androidScheme": "https"
+  },
+  "android": {
+    "allowMixedContent": false,
+    "backgroundColor": "#fff5f7"
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchAutoHide": false,
+      "backgroundColor": "#fff5f7",
+      "showSpinner": false,
+      "androidScaleType": "CENTER_CROP"
+    },
+    "LocalNotifications": {
+      "iconColor": "#e85d75"
+    },
+    "StatusBar": {
+      "backgroundColor": "#fce4ec",
+      "style": "LIGHT"
+    }
+  }
+}

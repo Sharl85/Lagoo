@@ -1,0 +1,11 @@
+node_modules/
+dist/
+data/lago_database.json
+data/lago_database.json.tmp
+data/.secret
+.env
+*.log
+android/app/build/
+android/build/
+android/.gradle/
+android/local.properties

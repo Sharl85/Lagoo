@@ -1,0 +1,32 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="512" height="512" rx="110" fill="url(#bgGrad512)"/>
+  <defs>
+    <linearGradient id="bgGrad512" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fff0f3" />
+      <stop offset="50%" stop-color="#f8bbd0" />
+      <stop offset="100%" stop-color="#f48fb1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Chevelure -->
+  <path d="M256 80C176 80 128 128 128 208C128 280 144 336 160 360C176 320 184 280 192 264C192 264 208 288 256 288C304 288 320 264 320 264C328 280 336 320 352 360C368 336 384 280 384 208C384 128 336 80 256 80Z" fill="#5c3846"/>
+  <!-- Visage -->
+  <circle cx="256" cy="248" r="112" fill="#fed7c3"/>
+  <!-- Frange avant -->
+  <path d="M160 200C176 144 208 120 256 120C304 120 336 144 352 200C320 176 288 168 256 168C224 168 192 176 160 200Z" fill="#724757"/>
+  <!-- Yeux doux -->
+  <circle cx="216" cy="240" r="14.4" fill="#3a232f"/>
+  <circle cx="296" cy="240" r="14.4" fill="#3a232f"/>
+  <circle cx="221" cy="235" r="4.8" fill="#ffffff"/>
+  <circle cx="301" cy="235" r="4.8" fill="#ffffff"/>
+  <!-- Joues rosées (blush) -->
+  <circle cx="192" cy="272" r="17.6" fill="#f48fb1" opacity="0.65"/>
+  <circle cx="320" cy="272" r="17.6" fill="#f48fb1" opacity="0.65"/>
+  <!-- Sourire -->
+  <path d="M232 288C244 304 268 304 280 288" stroke="#c2185b" stroke-width="11.2" stroke-linecap="round"/>
+  <!-- Fleur de lotus dans les cheveux -->
+  <path d="M336 144C320 128 312 104 336 88C360 104 352 128 336 144Z" fill="#e85d75"/>
+  <path d="M312 128C296 120 288 96 312 88C328 96 328 112 312 128Z" fill="#f48fb1"/>
+  <path d="M360 128C376 120 384 96 360 88C344 96 344 112 360 128Z" fill="#f48fb1"/>
+  <circle cx="336" cy="128" r="8" fill="#ffd54f"/>
+</svg>

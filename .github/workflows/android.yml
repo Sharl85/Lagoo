@@ -1,0 +1,42 @@
+# Compile automatiquement l'APK Android de LaGo sur GitHub (onglet Actions -> Artifacts)
+name: Android APK
+
+on:
+  workflow_dispatch:
+    inputs:
+      api_url:
+        description: "URL publique de l'API LaGo (vide = app 100 % locale)"
+        required: false
+        default: ""
+  push:
+    tags: ["v*"]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - uses: android-actions/setup-android@v3
+      - run: npm ci
+      - run: npm test
+      - name: Build mobile + sync Android
+        env:
+          LAGO_API_URL: ${{ github.event.inputs.api_url }}
+        run: |
+          node scripts/build.js mobile
+          npx cap sync android
+      - name: Assemble debug APK
+        working-directory: android
+        run: chmod +x gradlew && ./gradlew assembleDebug
+      - uses: actions/upload-artifact@v4
+        with:
+          name: lago-debug-apk
+          path: android/app/build/outputs/apk/debug/app-debug.apk

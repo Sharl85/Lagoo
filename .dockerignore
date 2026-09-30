@@ -1,0 +1,7 @@
+node_modules
+android
+dist
+data/lago_database.json
+data/.secret
+.git
+*.log

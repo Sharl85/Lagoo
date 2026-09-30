@@ -1,0 +1,10 @@
+{
+  "web": {
+    "apiBaseUrl": "",
+    "demoMode": true
+  },
+  "mobile": {
+    "apiBaseUrl": "",
+    "demoMode": true
+  }
+}

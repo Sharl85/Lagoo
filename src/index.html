@@ -1,0 +1,1239 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>LaGo 🌸👧 | Calculateur & Suivi du Cycle Menstruel</title>
+  <meta name="description" content="LaGo - L'application féminine et adolescente pour calculer et suivre son cycle menstruel, son ovulation et son bien-être. Thème rosé et fleurs de lotus.">
+  
+  <!-- PWA & Mobile Web App Meta Tags -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#f8bbd0">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="LaGo">
+  <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
+  <link rel="icon" type="image/svg+xml" href="assets/icons/icon-192.svg">
+
+  <!-- Configuration (plateforme web/mobile, URL de l'API, mode démo) -->
+  <script src="config.js"></script>
+
+  <!-- Bibliothèque d'icônes vectorielles Lucide HÉBERGÉE EN LOCAL (Zéro CDN) -->
+  <script src="js/vendor/lucide.min.js"></script>
+
+  <!-- Feuilles de style -->
+  <link rel="stylesheet" href="css/fonts.css">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/lotus-theme.css">
+  <link rel="stylesheet" href="css/calendar.css">
+  <link rel="stylesheet" href="css/mobile.css">
+</head>
+<body>
+
+  <!-- Arrière-plan animé : Pétales de lotus flottants -->
+  <canvas id="petals-canvas" aria-hidden="true"></canvas>
+
+  <!-- Décorations Watermark Lotus en arrière-plan -->
+  <svg class="bg-lotus-watermark-left" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M50 15 C45 35 30 55 10 65 C30 75 45 85 50 95 C55 85 70 75 90 65 C70 55 55 35 50 15 Z" fill="#f8bbd0"/>
+    <path d="M50 30 C45 45 35 60 20 70 C35 78 45 85 50 92 C55 85 65 78 80 70 C65 60 55 45 50 30 Z" fill="#f48fb1"/>
+  </svg>
+
+  <svg class="bg-lotus-watermark-right" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M50 10 C42 35 25 58 5 70 C28 78 42 88 50 98 C58 88 72 78 95 70 C75 58 58 35 50 10 Z" fill="#f8bbd0"/>
+  </svg>
+
+  <!-- ==========================================================================
+       En-tête de l'application (Header LaGo)
+       ========================================================================== -->
+  <header class="app-header">
+    <div class="header-container">
+      
+      <!-- Brand avec Logo Icône Adolescente & Lotus -->
+      <div class="brand" id="brand-home-link" title="LaGo - Accueil" role="link" tabindex="0">
+        <div class="brand-icon-wrapper" style="width: 48px; height: 48px; background: linear-gradient(135deg, #fff0f3 0%, #f8bbd0 100%);">
+          <!-- Icône SVG Vectorielle : Jeune Adolescente avec Fleur de Lotus -->
+          <svg width="34" height="34" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M32 10C22 10 16 16 16 26C16 35 18 42 20 45C22 40 23 35 24 33C24 33 26 36 32 36C38 36 40 33 40 33C41 35 42 40 44 45C46 42 48 35 48 26C48 16 42 10 32 10Z" fill="#5c3846"/>
+            <circle cx="32" cy="31" r="14" fill="#fed7c3"/>
+            <path d="M20 25C22 18 26 15 32 15C38 15 42 18 44 25C40 22 36 21 32 21C28 21 24 22 20 25Z" fill="#724757"/>
+            <circle cx="27" cy="30" r="1.8" fill="#3a232f"/>
+            <circle cx="37" cy="30" r="1.8" fill="#3a232f"/>
+            <circle cx="27.6" cy="29.4" r="0.6" fill="#ffffff"/>
+            <circle cx="37.6" cy="29.4" r="0.6" fill="#ffffff"/>
+            <circle cx="24" cy="34" r="2.2" fill="#f48fb1" opacity="0.6"/>
+            <circle cx="40" cy="34" r="2.2" fill="#f48fb1" opacity="0.6"/>
+            <path d="M29 36C30.5 38 33.5 38 35 36" stroke="#c2185b" stroke-width="1.4" stroke-linecap="round"/>
+            <path d="M42 18C40 16 39 13 42 11C45 13 44 16 42 18Z" fill="#e85d75"/>
+            <path d="M39 16C37 15 36 12 39 11C41 12 41 14 39 16Z" fill="#f48fb1"/>
+            <path d="M45 16C47 15 48 12 45 11C43 12 43 14 45 16Z" fill="#f48fb1"/>
+            <circle cx="42" cy="16" r="1" fill="#ffd54f"/>
+          </svg>
+        </div>
+        <div>
+          <h1 class="brand-title">LaGo <span>🌸</span></h1>
+          <p class="brand-tagline">Mon Cycle & Bien-être</p>
+        </div>
+      </div>
+
+      <!-- Actions Header & Profil Utilisateur -->
+      <div class="header-actions">
+        
+        <!-- Bouton Installer App (PWA Android / iOS) -->
+        <button id="pwa-install-btn" class="btn-secondary" style="display: none; padding: 0.5rem 0.9rem; font-size: 0.82rem; border-color: var(--primary-pink); color: var(--primary-pink);" title="Installer LaGo sur mon téléphone">
+          <i data-lucide="smartphone" class="app-icon" style="width: 15px; height: 15px;"></i>
+          <span>Installer l'App</span>
+        </button>
+
+        <button id="quick-log-today-btn" class="btn-primary header-log-btn" style="padding: 0.5rem 1rem; font-size: 0.85rem;" title="Noter mes symptômes du jour">
+          <i data-lucide="sparkles" class="app-icon" style="width: 15px; height: 15px;"></i>
+          <span class="btn-label">Noter mon jour</span>
+        </button>
+
+        <button id="toggle-petals-btn" class="btn-icon header-secondary-action" title="Activer / Désactiver les pétales de lotus" aria-label="Pétales de lotus">
+          <i data-lucide="flower-2" class="app-icon" style="width: 17px; height: 17px;"></i>
+        </button>
+
+        <button id="toggle-theme-btn" class="btn-icon header-secondary-action" title="Basculer le mode Jour / Nuit rosé" aria-label="Mode nuit">
+          <i data-lucide="moon-star" class="app-icon" style="width: 17px; height: 17px;"></i>
+        </button>
+
+        <button id="quick-hide-btn" class="btn-icon" title="Mode discret instantané (Masquer l'écran)" aria-label="Masquer l'application">
+          <i data-lucide="lock" class="app-icon" style="width: 17px; height: 17px;"></i>
+        </button>
+
+        <!-- Menu Profil / Connexion Utilisateur -->
+        <div class="user-profile-wrapper">
+          <button id="header-user-btn" class="user-profile-btn" title="Mon Compte LaGo" aria-haspopup="true" aria-expanded="false">
+            <div id="header-user-avatar" class="user-avatar-circle" style="background: var(--lotus-gradient);">
+              👧
+            </div>
+            <span id="header-user-name" class="user-profile-name">Connexion</span>
+            <span id="header-user-role-badge" class="user-profile-role-badge">Invitée</span>
+            <i data-lucide="chevron-down" class="app-icon" style="width: 14px; height: 14px; color: var(--text-muted);"></i>
+          </button>
+
+          <!-- Menu Déroulant -->
+          <div id="profile-dropdown" class="profile-dropdown-menu">
+            <div class="dropdown-header-info">
+              <div id="dropdown-user-fullname" style="font-weight: 700; font-size: 0.95rem; color: var(--text-dark);">Invitée</div>
+              <div id="dropdown-user-email" style="font-size: 0.78rem; color: var(--text-muted);">Non connectée</div>
+              <div id="sync-status" class="sync-status" data-state="guest"></div>
+            </div>
+
+            <button class="dropdown-item" id="dropdown-settings-btn">
+              <i data-lucide="sliders-horizontal" class="app-icon icon-rose" style="width: 16px; height: 16px;"></i>
+              <span>Mon profil & sécurité</span>
+            </button>
+
+            <button class="dropdown-item" id="dropdown-switch-user-btn">
+              <i data-lucide="users" class="app-icon icon-rose" style="width: 16px; height: 16px;"></i>
+              <span>Changer de compte</span>
+            </button>
+
+            <button class="dropdown-item" id="dropdown-admin-portal-btn" style="display: none;">
+              <i data-lucide="shield-check" class="app-icon icon-gold" style="width: 16px; height: 16px;"></i>
+              <span>Espace Super Admin 👑</span>
+            </button>
+
+            <button class="dropdown-item danger" id="dropdown-logout-btn">
+              <i data-lucide="log-out" class="app-icon" style="width: 16px; height: 16px;"></i>
+              <span>Se déconnecter</span>
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </header>
+
+  <!-- ==========================================================================
+       Barre de Navigation par Onglets
+       ========================================================================== -->
+  <nav class="main-nav-container" aria-label="Navigation principale">
+    <div class="nav-tabs" role="tablist">
+      <button class="nav-tab-btn active" data-tab="tab-dashboard" role="tab" aria-selected="true">
+        <i data-lucide="layout-dashboard" class="app-icon" style="width: 17px; height: 17px;"></i>
+        <span class="tab-label">Tableau de bord</span><span class="tab-label-short">Accueil</span>
+      </button>
+      <button class="nav-tab-btn" data-tab="tab-calendar" role="tab" aria-selected="false">
+        <i data-lucide="calendar-heart" class="app-icon" style="width: 17px; height: 17px;"></i>
+        <span class="tab-label">Calendrier & Journal</span><span class="tab-label-short">Journal</span>
+      </button>
+      <button class="nav-tab-btn" data-tab="tab-phases" role="tab" aria-selected="false">
+        <i data-lucide="orbit" class="app-icon" style="width: 17px; height: 17px;"></i>
+        <span class="tab-label">Les 4 Phases</span><span class="tab-label-short">Phases</span>
+      </button>
+      <button class="nav-tab-btn" data-tab="tab-wellness" role="tab" aria-selected="false">
+        <i data-lucide="heart-pulse" class="app-icon" style="width: 17px; height: 17px;"></i>
+        <span class="tab-label">Conseils & Bien-être</span><span class="tab-label-short">Bien-être</span>
+      </button>
+      <button class="nav-tab-btn" data-tab="tab-settings" role="tab" aria-selected="false">
+        <i data-lucide="sliders-horizontal" class="app-icon" style="width: 17px; height: 17px;"></i>
+        <span class="tab-label">Mon Profil & Calculs</span><span class="tab-label-short">Profil</span>
+      </button>
+      <!-- Onglet Spécial Super Admin -->
+      <button id="nav-tab-admin-btn" class="nav-tab-btn nav-tab-admin" data-tab="tab-admin" role="tab" aria-selected="false" style="display: none; background: linear-gradient(135deg, rgba(254, 250, 224, 0.9), rgba(255, 224, 130, 0.5)); border: 1px solid #ffd54f; color: #b78103;">
+        <i data-lucide="shield-alert" class="app-icon icon-gold" style="width: 17px; height: 17px;"></i>
+        <span class="tab-label">Espace Super Admin 👑</span><span class="tab-label-short">Admin</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ==========================================================================
+       Contenu Principal de l'Application
+       ========================================================================== -->
+  <main class="main-container">
+
+    <!-- ------------------------------------------------------------------------
+         ONGLET 1 : Tableau de bord (Dashboard)
+         ------------------------------------------------------------------------ -->
+    <div id="tab-dashboard" class="tab-pane active">
+      <div class="dashboard-grid">
+        
+        <!-- Colonne Gauche : Cadran Principal & Fleur de Lotus -->
+        <div class="glass-card hero-cycle-card">
+          <div class="card-header" style="width: 100%; margin-bottom: 0;">
+            <span style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; display: flex; align-items: center; gap: 0.4rem;">
+              <i data-lucide="activity" class="app-icon icon-rose" style="width: 15px; height: 15px;"></i>
+              Statut du Cycle en Temps Réel
+            </span>
+            <span id="hero-phase-badge" class="cycle-phase-badge badge-follicular">
+              <i data-lucide="flower-2" class="app-icon" style="width: 15px; height: 15px;"></i>
+              <span>Phase Folliculaire</span>
+            </span>
+          </div>
+
+          <!-- Cadran Circulaire avec Lotus Interactif -->
+          <div class="cycle-dial-container">
+            <svg class="cycle-svg-ring" viewBox="0 0 290 290">
+              <defs>
+                <linearGradient id="pinkGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#f48fb1" />
+                  <stop offset="50%" stop-color="#e85d75" />
+                  <stop offset="100%" stop-color="#c2185b" />
+                </linearGradient>
+              </defs>
+              <!-- Cercle d'arrière-plan -->
+              <circle class="ring-bg" cx="145" cy="145" r="125"></circle>
+              <!-- Anneau de progression -->
+              <circle id="ring-progress-circle" class="ring-progress" cx="145" cy="145" r="125"></circle>
+            </svg>
+
+            <!-- Centre du Cadran : Lotus Animé & Jour -->
+            <div class="dial-center-content">
+              <div class="lotus-avatar-wrapper lotus-pulse">
+                <!-- Fleur de Lotus SVG morphologique -->
+                <svg id="lotus-interactive-avatar" class="lotus-svg lotus-stage-follicular" viewBox="0 0 100 100">
+                  <!-- Pétales extérieurs -->
+                  <path class="lotus-petal petal-outer-left" d="M50 85 C30 75 10 55 20 35 C35 45 45 65 50 85 Z" fill="#f8bbd0"/>
+                  <path class="lotus-petal petal-outer-right" d="M50 85 C70 75 90 55 80 35 C65 45 55 65 50 85 Z" fill="#f8bbd0"/>
+                  <!-- Pétales intermédiaires -->
+                  <path class="lotus-petal petal-left" d="M50 85 C35 70 20 45 35 25 C45 40 48 65 50 85 Z" fill="#f48fb1"/>
+                  <path class="lotus-petal petal-right" d="M50 85 C65 70 80 45 65 25 C55 40 52 65 50 85 Z" fill="#f48fb1"/>
+                  <!-- Pétale central -->
+                  <path class="lotus-petal petal-center" d="M50 85 C42 60 40 30 50 15 C60 30 58 60 50 85 Z" fill="#e85d75"/>
+                  <!-- Cœur lumineux -->
+                  <circle class="lotus-center" cx="50" cy="72" r="5" fill="#ffd54f"/>
+                </svg>
+              </div>
+              <div id="dial-day-number" class="cycle-day-number">Jour 12</div>
+              <div id="dial-total-days" class="cycle-day-label">sur 28 jours</div>
+            </div>
+          </div>
+
+          <!-- Message de Compte à Rebours -->
+          <div id="countdown-message" class="cycle-countdown-box">
+            <i data-lucide="clock" class="app-icon icon-rose" style="width: 16px; height: 16px;"></i>
+            <span>Prochaines règles estimées dans <strong>16 jours</strong>.</span>
+          </div>
+        </div>
+
+        <!-- Colonne Droite : Indicateurs Rapides & Conseil du Jour -->
+        <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+          
+          <div class="glass-card">
+            <div class="card-header">
+              <h3 class="card-title">
+                <i data-lucide="sparkles" class="app-icon icon-rose" style="width: 20px; height: 20px;"></i>
+                Aperçu de votre Cycle
+              </h3>
+            </div>
+
+            <div class="quick-stats-grid">
+              <div class="stat-card">
+                <div class="stat-icon-title">
+                  <div class="icon-box-sm">
+                    <i data-lucide="droplet" class="app-icon icon-rose" style="width: 16px; height: 16px;"></i>
+                  </div>
+                  Prochaines règles
+                </div>
+                <div id="stat-next-period" class="stat-value">Dans 16 j</div>
+                <div class="stat-subtext">Début estimé</div>
+              </div>
+
+              <div class="stat-card">
+                <div class="stat-icon-title">
+                  <div class="icon-box-sm" style="background: rgba(243, 229, 245, 0.8); border-color: rgba(186, 104, 200, 0.35);">
+                    <i data-lucide="sparkles" class="app-icon icon-purple" style="width: 16px; height: 16px;"></i>
+                  </div>
+                  Ovulation
+                </div>
+                <div id="stat-ovulation" class="stat-value">Dans 2 j</div>
+                <div class="stat-subtext">Jour d'ovulation</div>
+              </div>
+
+              <div class="stat-card">
+                <div class="stat-icon-title">
+                  <div class="icon-box-sm" style="background: rgba(224, 242, 241, 0.8); border-color: rgba(77, 182, 172, 0.35);">
+                    <i data-lucide="sprout" class="app-icon icon-teal" style="width: 16px; height: 16px;"></i>
+                  </div>
+                  Fertilité
+                </div>
+                <div id="stat-fertility" class="stat-value" style="font-size: 1.05rem;">Élevée</div>
+                <div class="stat-subtext">Probabilité de conception</div>
+              </div>
+
+              <div class="stat-card">
+                <div class="stat-icon-title">
+                  <div class="icon-box-sm" style="background: rgba(254, 250, 224, 0.8); border-color: rgba(212, 163, 115, 0.35);">
+                    <i data-lucide="moon" class="app-icon icon-gold" style="width: 16px; height: 16px;"></i>
+                  </div>
+                  Phase actuelle
+                </div>
+                <div id="stat-current-phase" class="stat-value" style="font-size: 1.05rem;">Folliculaire</div>
+                <div class="stat-subtext">Hormones en hausse</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Carte Sagesse & Conseil Holistique du Jour -->
+          <div class="daily-wisdom-card">
+            <div class="wisdom-header">
+              <i data-lucide="feather" class="app-icon icon-gold" style="width: 18px; height: 18px;"></i>
+              <span id="wisdom-phase-title">Phase Folliculaire</span>
+            </div>
+            <p id="wisdom-advice-text" class="wisdom-text">
+              « Votre énergie est en plein renouveau. C'est le moment d'entreprendre, de créer et de vous faire plaisir ! »
+            </p>
+            <div style="margin-top: 0.85rem; font-size: 0.85rem; color: var(--text-dark); display: flex; flex-direction: column; gap: 0.45rem;">
+              <div style="display: flex; align-items: center; gap: 0.4rem;">
+                <i data-lucide="apple" class="app-icon icon-green" style="width: 16px; height: 16px;"></i>
+                <strong>Nutrition :</strong> <span id="wisdom-nutrition-text">Aliments frais, légumes verts, graines de lin.</span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 0.4rem;">
+                <i data-lucide="zap" class="app-icon icon-rose" style="width: 16px; height: 16px;"></i>
+                <strong>Mouvement :</strong> <span id="wisdom-sport-text">Cardio dynamique, danse, renforcement musculaire.</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ------------------------------------------------------------------------
+         ONGLET 2 : Calendrier & Journal Intime
+         ------------------------------------------------------------------------ -->
+    <div id="tab-calendar" class="tab-pane">
+      <div class="glass-card">
+        
+        <div class="calendar-header-nav">
+          <div>
+            <h2 id="calendar-month-year" class="calendar-month-year">Septembre 2026</h2>
+            <p class="card-subtitle">Touchez n'importe quel jour pour consigner ou voir vos symptômes et émotions.</p>
+          </div>
+          <div class="calendar-nav-buttons">
+            <button id="cal-prev-month" class="btn-secondary" title="Mois précédent">
+              <i data-lucide="chevron-left" class="app-icon" style="width: 16px; height: 16px;"></i>
+              <span class="btn-label">Précédent</span>
+            </button>
+            <button id="cal-today-btn" class="btn-secondary" title="Revenir à aujourd'hui">
+              <i data-lucide="calendar" class="app-icon" style="width: 16px; height: 16px;"></i>
+              <span>Aujourd'hui</span>
+            </button>
+            <button id="cal-next-month" class="btn-secondary" title="Mois suivant">
+              <span class="btn-label">Suivant</span>
+              <i data-lucide="chevron-right" class="app-icon" style="width: 16px; height: 16px;"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Grille du calendrier -->
+        <div class="calendar-grid-wrapper">
+          <div class="calendar-weekdays">
+            <div>Lun</div>
+            <div>Mar</div>
+            <div>Mer</div>
+            <div>Jeu</div>
+            <div>Ven</div>
+            <div>Sam</div>
+            <div>Dim</div>
+          </div>
+          <div id="calendar-days-container" class="calendar-days">
+            <!-- Rendu dynamique par JS -->
+          </div>
+        </div>
+
+        <!-- Légende du Calendrier -->
+        <div class="calendar-legend">
+          <div class="legend-item">
+            <div class="legend-box legend-period"></div>
+            <span>Règles enregistrées</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-box legend-predicted"></div>
+            <span>Règles prévues</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-box legend-fertile"></div>
+            <span>Période fertile</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-box legend-ovulation"></div>
+            <span>Jour d'ovulation</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-box legend-symptoms"></div>
+            <span>Journal / Symptômes</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ------------------------------------------------------------------------
+         ONGLET 3 : Les 4 Phases du Cycle & Prévisions
+         ------------------------------------------------------------------------ -->
+    <div id="tab-phases" class="tab-pane">
+      <div class="glass-card">
+        <div class="card-header">
+          <div>
+            <h2 class="card-title">
+              <i data-lucide="orbit" class="app-icon icon-rose" style="width: 22px; height: 22px;"></i>
+              Comprendre vos 4 Saisons Intérieures
+            </h2>
+            <p class="card-subtitle">Chaque cycle féminin est une succession harmonieuse de 4 phases hormonales distinctes.</p>
+          </div>
+        </div>
+
+        <div class="phases-detail-grid">
+          
+          <!-- Phase 1 -->
+          <div class="phase-card menstrual">
+            <div class="phase-card-header">
+              <span class="phase-name" style="display: flex; align-items: center; gap: 0.4rem;">
+                <i data-lucide="droplet" class="app-icon icon-rose" style="width: 18px; height: 18px;"></i>
+                1. Phase Menstruelle
+              </span>
+              <span class="phase-days-pill">Jours 1 à 5</span>
+            </div>
+            <p class="phase-desc">
+              <strong>L'Hiver Intérieur.</strong> Les hormones sont à leur niveau le plus bas. L'utérus élimine l'endomètre. Votre corps vous invite à l'introspection et au repos réparateur.
+            </p>
+            <ul class="phase-tips-list">
+              <li><i data-lucide="battery-low" class="app-icon icon-rose" style="width: 14px; height: 14px;"></i> <strong>Énergie :</strong> Calme, besoin de sommeil.</li>
+              <li><i data-lucide="coffee" class="app-icon icon-gold" style="width: 14px; height: 14px;"></i> <strong>Nutrition :</strong> Fer, magnésium, infusions chaudes (framboisier).</li>
+              <li><i data-lucide="heart" class="app-icon icon-rose" style="width: 14px; height: 14px;"></i> <strong>Bien-être :</strong> Bouillotte chaude, étirements lents, bains relaxants.</li>
+            </ul>
+          </div>
+
+          <!-- Phase 2 -->
+          <div class="phase-card follicular">
+            <div class="phase-card-header">
+              <span class="phase-name" style="display: flex; align-items: center; gap: 0.4rem;">
+                <i data-lucide="sprout" class="app-icon icon-green" style="width: 18px; height: 18px;"></i>
+                2. Phase Folliculaire
+              </span>
+              <span class="phase-days-pill">Jours 6 à 13</span>
+            </div>
+            <p class="phase-desc">
+              <strong>Le Printemps Intérieur.</strong> La montée des œstrogènes stimule la maturation des follicules ovariens. Votre humeur s'élève, votre esprit est alerte et votre peau s'illumine.
+            </p>
+            <ul class="phase-tips-list">
+              <li><i data-lucide="trending-up" class="app-icon icon-green" style="width: 14px; height: 14px;"></i> <strong>Énergie :</strong> Montée en puissance, créativité décuplée.</li>
+              <li><i data-lucide="apple" class="app-icon icon-green" style="width: 14px; height: 14px;"></i> <strong>Nutrition :</strong> Aliments frais, graines de lin, protéines végétales.</li>
+              <li><i data-lucide="sun" class="app-icon icon-gold" style="width: 14px; height: 14px;"></i> <strong>Bien-être :</strong> Lancer de nouveaux projets, séances de sport rythmées.</li>
+            </ul>
+          </div>
+
+          <!-- Phase 3 -->
+          <div class="phase-card ovulation">
+            <div class="phase-card-header">
+              <span class="phase-name" style="display: flex; align-items: center; gap: 0.4rem;">
+                <i data-lucide="sparkles" class="app-icon icon-purple" style="width: 18px; height: 18px;"></i>
+                3. Phase Ovulatoire
+              </span>
+              <span class="phase-days-pill">Jours 14 à 16</span>
+            </div>
+            <p class="phase-desc">
+              <strong>L'Été Intérieur.</strong> Le pic hormonal déclenche la libération de l'ovocyte. C'est l'apogée de votre fécondité, de votre magnétisme et de votre assurance relationnelle.
+            </p>
+            <ul class="phase-tips-list">
+              <li><i data-lucide="zap" class="app-icon icon-purple" style="width: 14px; height: 14px;"></i> <strong>Énergie :</strong> Rayonnante, communicative, dynamique.</li>
+              <li><i data-lucide="grape" class="app-icon icon-purple" style="width: 14px; height: 14px;"></i> <strong>Nutrition :</strong> Baies antioxydantes, graines de courge, hydratation.</li>
+              <li><i data-lucide="users" class="app-icon icon-rose" style="width: 14px; height: 14px;"></i> <strong>Bien-être :</strong> Prises de parole, sorties sociales, entraînements intenses.</li>
+            </ul>
+          </div>
+
+          <!-- Phase 4 -->
+          <div class="phase-card luteal">
+            <div class="phase-card-header">
+              <span class="phase-name" style="display: flex; align-items: center; gap: 0.4rem;">
+                <i data-lucide="moon" class="app-icon icon-orange" style="width: 18px; height: 18px;"></i>
+                4. Phase Lutéale
+              </span>
+              <span class="phase-days-pill">Jours 17 à 28</span>
+            </div>
+            <p class="phase-desc">
+              <strong>L'Automne Intérieur.</strong> Le corps jaune sécrète la progestérone qui prépare le corps. En fin de phase, le syndrome prémenstruel (SPM) peut inviter à lever le pied.
+            </p>
+            <ul class="phase-tips-list">
+              <li><i data-lucide="wind" class="app-icon icon-orange" style="width: 14px; height: 14px;"></i> <strong>Énergie :</strong> Décroissante, propice au cocooning et au tri.</li>
+              <li><i data-lucide="cookie" class="app-icon icon-gold" style="width: 14px; height: 14px;"></i> <strong>Nutrition :</strong> Glucides lents (patates douces, avoine), chocolat noir.</li>
+              <li><i data-lucide="book-open" class="app-icon icon-rose" style="width: 14px; height: 14px;"></i> <strong>Bien-être :</strong> Pilates, journaling, moments calmes chez soi.</li>
+            </ul>
+          </div>
+
+        </div>
+
+        <div class="lotus-divider">
+          <i data-lucide="flower-2" class="app-icon icon-rose" style="width: 20px; height: 20px;"></i>
+        </div>
+
+        <div class="card-header">
+          <h3 class="card-title">
+            <i data-lucide="calendar-range" class="app-icon icon-rose" style="width: 20px; height: 20px;"></i>
+            Prévisions des 6 Prochains Cycles
+          </h3>
+        </div>
+        <div id="forecast-cycles-list">
+          <!-- Rempli dynamiquement -->
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ------------------------------------------------------------------------
+         ONGLET 4 : Conseils Holistiques & FAQ Bien-être
+         ------------------------------------------------------------------------ -->
+    <div id="tab-wellness" class="tab-pane">
+      <div class="glass-card">
+        <div class="card-header">
+          <div>
+            <h2 class="card-title">
+              <i data-lucide="heart-handshake" class="app-icon icon-rose" style="width: 22px; height: 22px;"></i>
+              Espace Bien-être & Santé Féminine
+            </h2>
+            <p class="card-subtitle">Conseils naturels, tisanes bienfaisantes et rituels pour vivre chaque phase en harmonie.</p>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin-top: 1rem;">
+          
+          <!-- Carte 1 : Plantes & Infusions -->
+          <div class="glass-card" style="background: rgba(255, 255, 255, 0.65);">
+            <h3 style="font-size: 1.3rem; margin-bottom: 0.75rem; color: #c2185b; display: flex; align-items: center; gap: 0.45rem;">
+              <i data-lucide="cup-soda" class="app-icon icon-rose" style="width: 20px; height: 20px;"></i>
+              L'Herboristerie du Cycle
+            </h3>
+            <p style="font-size: 0.9rem; margin-bottom: 0.75rem;">Les plantes traditionnelles alliées de votre équilibre hormonal :</p>
+            <ul style="list-style: none; font-size: 0.88rem; display: flex; flex-direction: column; gap: 0.5rem;">
+              <li style="display: flex; align-items: flex-start; gap: 0.4rem;">
+                <i data-lucide="flower" class="app-icon icon-rose" style="width: 16px; height: 16px; margin-top: 2px;"></i>
+                <span><strong>Feuilles de Framboisier :</strong> Tonique utérin remarquable, apaise les crampes menstruelles.</span>
+              </li>
+              <li style="display: flex; align-items: flex-start; gap: 0.4rem;">
+                <i data-lucide="sun" class="app-icon icon-gold" style="width: 16px; height: 16px; margin-top: 2px;"></i>
+                <span><strong>Camomille & Mélisse :</strong> Détendent le système nerveux et soulagent les tensions du SPM.</span>
+              </li>
+              <li style="display: flex; align-items: flex-start; gap: 0.4rem;">
+                <i data-lucide="leaf" class="app-icon icon-green" style="width: 16px; height: 16px; margin-top: 2px;"></i>
+                <span><strong>Achillée Millefeuille :</strong> Régulatrice du flux et antispasmodique naturel.</span>
+              </li>
+              <li style="display: flex; align-items: flex-start; gap: 0.4rem;">
+                <i data-lucide="sparkles" class="app-icon icon-orange" style="width: 16px; height: 16px; margin-top: 2px;"></i>
+                <span><strong>Gingembre doux :</strong> Réduit l'inflammation et favorise une bonne circulation pelvienne.</span>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Carte 2 : Seed Cycling -->
+          <div class="glass-card" style="background: rgba(255, 255, 255, 0.65);">
+            <h3 style="font-size: 1.3rem; margin-bottom: 0.75rem; color: #c2185b; display: flex; align-items: center; gap: 0.45rem;">
+              <i data-lucide="sprout" class="app-icon icon-green" style="width: 20px; height: 20px;"></i>
+              Le Seed Cycling (Graines du Cycle)
+            </h3>
+            <p style="font-size: 0.9rem; margin-bottom: 0.75rem;">Une méthode douce pour soutenir naturellement vos hormones :</p>
+            <ul style="list-style: none; font-size: 0.88rem; display: flex; flex-direction: column; gap: 0.5rem;">
+              <li style="display: flex; align-items: flex-start; gap: 0.4rem;">
+                <i data-lucide="check-circle-2" class="app-icon icon-green" style="width: 16px; height: 16px; margin-top: 2px;"></i>
+                <span><strong>Jours 1 à 14 (Phase Folliculaire) :</strong> 1 c. à soupe de graines de lin moulues + graines de courge (soutien des œstrogènes).</span>
+              </li>
+              <li style="display: flex; align-items: flex-start; gap: 0.4rem;">
+                <i data-lucide="check-circle-2" class="app-icon icon-gold" style="width: 16px; height: 16px; margin-top: 2px;"></i>
+                <span><strong>Jours 15 à 28 (Phase Lutéale) :</strong> 1 c. à soupe de graines de sésame + graines de tournesol (soutien de la progestérone).</span>
+              </li>
+            </ul>
+          </div>
+
+        </div>
+
+        <!-- FAQ Réconfortante -->
+        <div style="margin-top: 2rem;">
+          <h3 style="font-size: 1.4rem; margin-bottom: 1rem; color: var(--text-dark); display: flex; align-items: center; gap: 0.45rem;">
+            <i data-lucide="help-circle" class="app-icon icon-rose" style="width: 20px; height: 20px;"></i>
+            Questions Fréquentes & Repères
+          </h3>
+          
+          <div style="display: flex; flex-direction: column; gap: 1rem;">
+            <div class="glass-card" style="padding: 1.2rem;">
+              <h4 style="font-size: 1.1rem; color: var(--primary-pink); margin-bottom: 0.35rem;">Quelle est la durée normale d'un cycle menstruel ?</h4>
+              <p style="font-size: 0.88rem; color: var(--text-dark);">
+                Un cycle régulier dure généralement entre <strong>21 et 35 jours</strong> (la moyenne étant de 28 jours). Une variation de quelques jours d'un mois à l'autre est parfaitement naturelle et peut être influencée par le stress, les cours, les voyages ou le sommeil.
+              </p>
+            </div>
+
+            <div class="glass-card" style="padding: 1.2rem;">
+              <h4 style="font-size: 1.1rem; color: var(--primary-pink); margin-bottom: 0.35rem;">Comment repérer sa fenêtre de fertilité ?</h4>
+              <p style="font-size: 0.88rem; color: var(--text-dark);">
+                La fenêtre fertile s'étend sur environ <strong>6 jours</strong> (les 5 jours précédant l'ovulation et le jour de celle-ci). Les signes corporels incluent une glaire cervicale fluide et transparente (aspect blanc d'œuf).
+              </p>
+            </div>
+
+            <div class="glass-card" style="padding: 1.2rem;">
+              <h4 style="font-size: 1.1rem; color: var(--primary-pink); margin-bottom: 0.35rem;">Quand consulter un professionnel de santé ?</h4>
+              <p style="font-size: 0.88rem; color: var(--text-dark);">
+                Consultez une sage-femme, un gynécologue ou votre médecin traitant en cas de douleurs très intenses non soulagées par les antalgiques usuels, de saignements inhabituels entre les règles, ou d'absence de règles prolongée.
+              </p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ------------------------------------------------------------------------
+         ONGLET 5 : Mon Profil & Calculs
+         ------------------------------------------------------------------------ -->
+    <div id="tab-settings" class="tab-pane">
+      <div class="glass-card">
+        <div class="card-header">
+          <div>
+            <h2 class="card-title">
+              <i data-lucide="sliders" class="app-icon icon-rose" style="width: 22px; height: 22px;"></i>
+              Paramètres & Calculs Personnalisés
+            </h2>
+            <p class="card-subtitle">Ajustez les données de référence de votre corps pour des calculs ultra-précis.</p>
+          </div>
+        </div>
+
+        <form id="cycle-settings-form">
+          <div class="form-grid">
+            
+            <div class="form-group">
+              <label for="setting-lmp" class="form-label">
+                <i data-lucide="calendar" class="app-icon icon-rose" style="width: 16px; height: 16px;"></i>
+                <span>Date du 1er jour des dernières règles :</span>
+              </label>
+              <input type="date" id="setting-lmp" class="form-input" required>
+            </div>
+
+            <div class="form-group">
+              <label for="setting-cycle-length" class="form-label">
+                <i data-lucide="rotate-cw" class="app-icon icon-rose" style="width: 16px; height: 16px;"></i>
+                <span>Durée moyenne de votre cycle (jours) :</span>
+              </label>
+              <input type="number" id="setting-cycle-length" class="form-input" min="20" max="45" value="28" inputmode="numeric" required>
+              <span style="font-size: 0.78rem; color: var(--text-muted);">Entre le 1er jour des règles et la veille des règles suivantes (moyenne : 28).</span>
+            </div>
+
+            <div class="form-group">
+              <label for="setting-period-duration" class="form-label">
+                <i data-lucide="clock" class="app-icon icon-rose" style="width: 16px; height: 16px;"></i>
+                <span>Durée moyenne de vos règles (jours) :</span>
+              </label>
+              <input type="number" id="setting-period-duration" class="form-input" min="2" max="10" value="5" inputmode="numeric" required>
+              <span style="font-size: 0.78rem; color: var(--text-muted);">Nombre de jours d'écoulement menstruel (moyenne : 5).</span>
+            </div>
+
+          </div>
+
+          <button type="submit" class="btn-primary">
+            <i data-lucide="save" class="app-icon" style="width: 18px; height: 18px;"></i>
+            <span>Enregistrer mes paramètres et recalculer</span>
+          </button>
+        </form>
+
+        <div class="lotus-divider">
+          <i data-lucide="flower-2" class="app-icon icon-rose" style="width: 20px; height: 20px;"></i>
+        </div>
+
+        <!-- Préférences : mode discret & rappels -->
+        <div class="card-header">
+          <div>
+            <h3 class="card-title">
+              <i data-lucide="bell-ring" class="app-icon icon-rose" style="width: 22px; height: 22px;"></i>
+              Préférences & Rappels
+            </h3>
+            <p class="card-subtitle">Personnalisez la discrétion de LaGo sur votre téléphone.</p>
+          </div>
+        </div>
+
+        <div class="settings-toggle-list">
+          <label class="toggle-row" for="setting-discreet">
+            <span>
+              <strong>Mode discret</strong>
+              <small>Les notifications n'affichent aucun mot lié au cycle.</small>
+            </span>
+            <input type="checkbox" id="setting-discreet" class="toggle-switch">
+          </label>
+          <label class="toggle-row" for="setting-reminders" id="reminders-block">
+            <span>
+              <strong>Rappels avant les règles</strong>
+              <small>Notification 2 jours avant et le jour J (application mobile).</small>
+            </span>
+            <input type="checkbox" id="setting-reminders" class="toggle-switch">
+          </label>
+        </div>
+
+        <div class="lotus-divider">
+          <i data-lucide="flower-2" class="app-icon icon-rose" style="width: 20px; height: 20px;"></i>
+        </div>
+
+        <!-- Sécurité du compte -->
+        <div id="account-security-section">
+          <div class="card-header">
+            <div>
+              <h3 class="card-title">
+                <i data-lucide="lock-keyhole" class="app-icon icon-rose" style="width: 22px; height: 22px;"></i>
+                Sécurité & Verrouillage
+              </h3>
+              <p class="card-subtitle">Protégez votre journal intime avec un code PIN, changez votre mot de passe.</p>
+            </div>
+          </div>
+
+          <div class="security-grid">
+            <form id="pin-form" class="security-card" autocomplete="off">
+              <h4><i data-lucide="key-round" class="app-icon icon-rose" style="width: 16px; height: 16px;"></i> Code PIN de l'application</h4>
+              <p class="security-status">Statut : <strong id="pin-status" data-active="false">Désactivé</strong></p>
+              <div class="form-group">
+                <label class="form-label" for="pin-new">Nouveau code (4 à 6 chiffres)</label>
+                <input type="password" id="pin-new" class="form-input" inputmode="numeric" pattern="[0-9]{4,6}" minlength="4" maxlength="6" autocomplete="new-password" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="pin-confirm">Confirmer le code</label>
+                <input type="password" id="pin-confirm" class="form-input" inputmode="numeric" pattern="[0-9]{4,6}" minlength="4" maxlength="6" autocomplete="new-password" required>
+              </div>
+              <div class="security-actions">
+                <button type="submit" class="btn-primary"><i data-lucide="lock" class="app-icon" style="width: 16px; height: 16px;"></i><span>Activer / Changer</span></button>
+                <button type="button" id="pin-remove-btn" class="btn-secondary" style="display: none;"><span>Désactiver</span></button>
+              </div>
+            </form>
+
+            <form id="password-form" class="security-card">
+              <h4><i data-lucide="shield" class="app-icon icon-rose" style="width: 16px; height: 16px;"></i> Mot de passe du compte</h4>
+              <input type="text" autocomplete="username" style="display: none;" aria-hidden="true" tabindex="-1">
+              <div class="form-group">
+                <label class="form-label" for="pwd-current">Mot de passe actuel</label>
+                <input type="password" id="pwd-current" class="form-input" autocomplete="current-password" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="pwd-new">Nouveau mot de passe</label>
+                <input type="password" id="pwd-new" class="form-input" minlength="6" autocomplete="new-password" required>
+              </div>
+              <div class="security-actions">
+                <button type="submit" class="btn-primary"><i data-lucide="check" class="app-icon" style="width: 16px; height: 16px;"></i><span>Mettre à jour</span></button>
+              </div>
+            </form>
+          </div>
+
+          <div class="lotus-divider">
+            <i data-lucide="flower-2" class="app-icon icon-rose" style="width: 20px; height: 20px;"></i>
+          </div>
+        </div>
+
+        <!-- Confidentialité & Sauvegarde -->
+        <div class="card-header">
+          <div>
+            <h3 class="card-title">
+              <i data-lucide="shield-check" class="app-icon icon-green" style="width: 22px; height: 22px;"></i>
+              Confidentialité & Sauvegarde des Données
+            </h3>
+            <p class="card-subtitle">Vos données restent strictement protégées. Sauvegardez et restaurez vos cycles à tout moment.</p>
+          </div>
+        </div>
+
+        <div style="display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 1rem;">
+          <button id="export-data-btn" class="btn-secondary">
+            <i data-lucide="download" class="app-icon icon-rose" style="width: 16px; height: 16px;"></i>
+            <span>Exporter ma sauvegarde (JSON)</span>
+          </button>
+          
+          <input type="file" id="import-file-input" accept=".json" style="display: none;">
+          <button id="import-data-btn" class="btn-secondary">
+            <i data-lucide="upload" class="app-icon icon-rose" style="width: 16px; height: 16px;"></i>
+            <span>Importer une sauvegarde</span>
+          </button>
+
+          <button id="clear-data-btn" class="btn-secondary" style="color: #c62828; border-color: rgba(198, 40, 40, 0.3);">
+            <i data-lucide="trash-2" class="app-icon" style="width: 16px; height: 16px;"></i>
+            <span>Réinitialiser mes données</span>
+          </button>
+
+          <button id="delete-account-btn" class="btn-secondary account-only" style="color: #c62828; border-color: rgba(198, 40, 40, 0.3);">
+            <i data-lucide="user-x" class="app-icon" style="width: 16px; height: 16px;"></i>
+            <span>Supprimer mon compte</span>
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ------------------------------------------------------------------------
+         ONGLET 6 : Espace Super Admin 👑
+         ------------------------------------------------------------------------ -->
+    <div id="tab-admin" class="tab-pane">
+      <div class="glass-card">
+        
+        <div class="card-header">
+          <div>
+            <h2 class="card-title" style="display: flex; align-items: center; gap: 0.5rem; color: #b78103;">
+              <i data-lucide="shield-alert" class="app-icon icon-gold" style="width: 24px; height: 24px;"></i>
+              Panneau de Contrôle Super Admin LaGo 👑
+            </h2>
+            <p class="card-subtitle">Gestion globale de la plateforme, base de données persistante et comptes utilisatrices.</p>
+            <p class="admin-source-line"><i data-lucide="database" class="app-icon" style="width: 13px; height: 13px;"></i> Source : <strong id="admin-data-source">—</strong></p>
+          </div>
+          <div class="admin-header-actions">
+            <button id="admin-create-user-btn" class="btn-primary" style="padding: 0.55rem 1rem; font-size: 0.85rem;">
+              <i data-lucide="user-plus" class="app-icon" style="width: 15px; height: 15px;"></i>
+              <span>Ajouter une utilisatrice</span>
+            </button>
+            <button id="admin-refresh-logs-btn" class="btn-secondary" style="padding: 0.55rem 0.9rem;" title="Actualiser" aria-label="Actualiser">
+              <i data-lucide="refresh-cw" class="app-icon" style="width: 15px; height: 15px;"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Grille des KPIs Plateforme -->
+        <div class="admin-kpis-grid">
+          
+          <div class="admin-kpi-card">
+            <div class="icon-box-md" style="background: rgba(232, 93, 117, 0.15); color: #e85d75;">
+              <i data-lucide="users" class="app-icon" style="width: 22px; height: 22px;"></i>
+            </div>
+            <div>
+              <div id="admin-kpi-total-users" class="admin-kpi-value">3</div>
+              <div class="admin-kpi-label">Utilisatrices Inscrites</div>
+            </div>
+          </div>
+
+          <div class="admin-kpi-card">
+            <div class="icon-box-md" style="background: rgba(129, 199, 132, 0.15); color: #2e7d32;">
+              <i data-lucide="calendar-check" class="app-icon" style="width: 22px; height: 22px;"></i>
+            </div>
+            <div>
+              <div id="admin-kpi-total-logs" class="admin-kpi-value">5</div>
+              <div class="admin-kpi-label">Journaux Enregistrés</div>
+            </div>
+          </div>
+
+          <div class="admin-kpi-card">
+            <div class="icon-box-md" style="background: rgba(186, 104, 200, 0.15); color: #8e24aa;">
+              <i data-lucide="activity" class="app-icon" style="width: 22px; height: 22px;"></i>
+            </div>
+            <div>
+              <div id="admin-kpi-top-symptom" class="admin-kpi-value" style="font-size: 1.15rem;">Crampes (🩸)</div>
+              <div class="admin-kpi-label">Symptôme Fréquent</div>
+            </div>
+          </div>
+
+          <div class="admin-kpi-card">
+            <div class="icon-box-md" style="background: rgba(255, 213, 79, 0.2); color: #b78103;">
+              <i data-lucide="crown" class="app-icon" style="width: 22px; height: 22px;"></i>
+            </div>
+            <div>
+              <div id="admin-kpi-admins" class="admin-kpi-value" style="font-size: 1.15rem;">1 Super Admin</div>
+              <div class="admin-kpi-label">Privilèges Actifs</div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Tableau de Gestion des Utilisatrices -->
+        <h3 style="font-size: 1.25rem; font-family: 'Cormorant Garamond', serif; margin-bottom: 0.5rem; color: var(--text-dark);">
+          👥 Base de Données des Utilisatrices & Droits d'Accès
+        </h3>
+
+        <div class="admin-table-container">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Utilisatrice</th>
+                <th>Âge</th>
+                <th>Rôle</th>
+                <th>Statut</th>
+                <th>Inscription</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="admin-users-table-body">
+              <!-- Rempli dynamiquement -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Journal d'Activité Système -->
+        <div style="margin-top: 2rem;">
+          <h3 style="font-size: 1.25rem; font-family: 'Cormorant Garamond', serif; margin-bottom: 0.5rem; color: var(--text-dark); display: flex; align-items: center; gap: 0.4rem;">
+            <i data-lucide="terminal" class="app-icon icon-rose" style="width: 18px; height: 18px;"></i>
+            Journal d'Événements & Logs Base de Données
+          </h3>
+          <div id="admin-activity-logs-list" class="activity-logs-console">
+            <!-- Rempli dynamiquement -->
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ==========================================================================
+       Modale : Connexion & Inscription LaGo
+       ========================================================================== -->
+  <div id="auth-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="modal-card" style="max-width: 480px;">
+      
+      <div class="modal-header">
+        <div style="display: flex; align-items: center; gap: 0.6rem;">
+          <div style="width: 38px; height: 38px; border-radius: var(--radius-full); background: var(--lotus-gradient); display: flex; align-items: center; justify-content: center; font-size: 1.3rem;">
+            👧
+          </div>
+          <div>
+            <h3 class="card-title" style="font-size: 1.4rem;">Bienvenue sur LaGo</h3>
+            <p style="font-size: 0.78rem; color: var(--text-muted);">Votre espace de suivi intime & bienveillant</p>
+          </div>
+        </div>
+        <button id="auth-modal-close" class="modal-close-btn" data-close-modal aria-label="Fermer">&times;</button>
+      </div>
+
+      <div id="auth-error" class="auth-error" role="alert" style="display: none;"></div>
+
+      <!-- Onglets Connexion / Inscription -->
+      <div class="auth-tabs">
+        <button id="auth-tab-login" class="auth-tab-btn active">Connexion</button>
+        <button id="auth-tab-register" class="auth-tab-btn">Créer un compte</button>
+      </div>
+
+      <!-- Formulaire Connexion -->
+      <form id="auth-login-form">
+        <div class="form-group" style="margin-bottom: 1rem;">
+          <label class="form-label" for="login-email">
+            <i data-lucide="mail" class="app-icon icon-rose" style="width: 16px; height: 16px;"></i>
+            Adresse Email :
+          </label>
+          <input type="email" id="login-email" class="form-input" placeholder="ex: sarah@lago.app" autocomplete="username" required>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 1.25rem;">
+          <label class="form-label" for="login-password">
+            <i data-lucide="lock" class="app-icon icon-rose" style="width: 16px; height: 16px;"></i>
+            Mot de passe :
+          </label>
+          <input type="password" id="login-password" class="form-input" placeholder="••••••••" autocomplete="current-password" required>
+        </div>
+
+        <button type="submit" class="btn-primary" style="width: 100%;">
+          <i data-lucide="log-in" class="app-icon" style="width: 18px; height: 18px;"></i>
+          <span>Se connecter</span>
+        </button>
+      </form>
+
+      <!-- Formulaire Inscription -->
+      <form id="auth-register-form" style="display: none;">
+        <div class="form-group" style="margin-bottom: 0.85rem;">
+          <label class="form-label" for="reg-name">
+            <i data-lucide="user" class="app-icon icon-rose" style="width: 16px; height: 16px;"></i>
+            Votre Prénom :
+          </label>
+          <input type="text" id="reg-name" class="form-input" placeholder="ex: Camille" maxlength="60" autocomplete="given-name" required>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 0.85rem;">
+          <label class="form-label" for="reg-age">
+            <i data-lucide="sparkles" class="app-icon icon-gold" style="width: 16px; height: 16px;"></i>
+            Votre Âge :
+          </label>
+          <input type="number" id="reg-age" class="form-input" min="10" max="60" value="17" required>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 0.85rem;">
+          <label class="form-label" for="reg-email">
+            <i data-lucide="mail" class="app-icon icon-rose" style="width: 16px; height: 16px;"></i>
+            Adresse Email :
+          </label>
+          <input type="email" id="reg-email" class="form-input" placeholder="camille@exemple.com" autocomplete="email" required>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 1.25rem;">
+          <label class="form-label" for="reg-password">
+            <i data-lucide="lock" class="app-icon icon-rose" style="width: 16px; height: 16px;"></i>
+            Choisir un mot de passe :
+          </label>
+          <input type="password" id="reg-password" class="form-input" placeholder="6 caractères minimum" minlength="6" autocomplete="new-password" required>
+        </div>
+
+        <button type="submit" class="btn-primary" style="width: 100%;">
+          <i data-lucide="user-check" class="app-icon" style="width: 18px; height: 18px;"></i>
+          <span>Créer mon compte LaGo</span>
+        </button>
+      </form>
+
+      <!-- Accès Démo Rapide en 1-Clic -->
+      <div class="quick-demo-box" id="quick-demo-box">
+        <div style="font-size: 0.82rem; font-weight: 700; color: var(--primary-pink); display: flex; align-items: center; gap: 0.35rem;">
+          <i data-lucide="zap" class="app-icon" style="width: 14px; height: 14px;"></i>
+          Accès Rapide Démo (1-Clic) :
+        </div>
+
+        <button id="quick-login-user-btn" class="btn-demo-account">
+          <div style="display: flex; align-items: center; gap: 0.4rem;">
+            <span>👧</span>
+            <span>Compte <strong>Utilisatrice (Sarah)</strong></span>
+          </div>
+          <span style="font-size: 0.75rem; color: var(--text-muted);">sarah@lago.app</span>
+        </button>
+
+        <button id="quick-login-admin-btn" class="btn-demo-account" style="border-color: rgba(212, 163, 115, 0.5); background: #fffdf7;">
+          <div style="display: flex; align-items: center; gap: 0.4rem;">
+            <span>👑</span>
+            <span>Compte <strong>Super Admin</strong></span>
+          </div>
+          <span style="font-size: 0.75rem; color: #b78103; font-weight: 700;">admin@lago.app</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       Modale : Journal Quotidien des Symptômes
+       ========================================================================== -->
+  <div id="journal-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="journal-modal-title" class="card-title" style="display: flex; align-items: center; gap: 0.45rem;">
+          <i data-lucide="calendar-heart" class="app-icon icon-rose" style="width: 20px; height: 20px;"></i>
+          <span>Journal du Jour</span>
+        </h3>
+        <button id="journal-modal-close" class="modal-close-btn" data-close-modal aria-label="Fermer">&times;</button>
+      </div>
+
+      <div class="form-group" style="margin-bottom: 1.1rem;">
+        <label class="form-label">
+          <i data-lucide="droplet" class="app-icon icon-rose" style="width: 16px; height: 16px;"></i>
+          Intensité du Flux Menstruel :
+        </label>
+        <select id="journal-flow" class="form-select">
+          <option value="none">Aucun écoulement</option>
+          <option value="spotting">Spotting / Légères pertes rosées</option>
+          <option value="light">Flux léger</option>
+          <option value="medium">Flux moyen</option>
+          <option value="heavy">Flux abondant</option>
+        </select>
+      </div>
+
+      <div class="form-group" style="margin-bottom: 1.1rem;">
+        <label class="form-label">
+          <i data-lucide="smile" class="app-icon icon-gold" style="width: 16px; height: 16px;"></i>
+          Humeur & État d'esprit :
+        </label>
+        <select id="journal-mood" class="form-select">
+          <option value="calm">🌸 Sereine & Calme</option>
+          <option value="happy">✨ Joyeuse & Épanouie</option>
+          <option value="energetic">⚡ Pleine d'énergie</option>
+          <option value="romantic">💖 Romantique & Sensuelle</option>
+          <option value="sensitive">🥺 Sensible & Émotive</option>
+          <option value="tired">😴 Fatiguée / Besoin de sommeil</option>
+          <option value="stressed">🌧️ Stressée / Anxieuse</option>
+          <option value="irritated">⚡ Irritable (SPM)</option>
+        </select>
+      </div>
+
+      <div class="form-group" style="margin-bottom: 1.1rem;">
+        <label class="form-label">
+          <i data-lucide="heart" class="app-icon icon-rose" style="width: 16px; height: 16px;"></i>
+          Symptômes & Sensations corporelles :
+        </label>
+        <div class="symptom-tag-group">
+          <div class="symptom-pill" data-symptom="cramps">
+            <i data-lucide="droplet" class="app-icon" style="width: 14px; height: 14px;"></i> Crampes
+          </div>
+          <div class="symptom-pill" data-symptom="breasts">
+            <i data-lucide="heart" class="app-icon" style="width: 14px; height: 14px;"></i> Seins sensibles
+          </div>
+          <div class="symptom-pill" data-symptom="headache">
+            <i data-lucide="zap" class="app-icon" style="width: 14px; height: 14px;"></i> Maux de tête
+          </div>
+          <div class="symptom-pill" data-symptom="bloating">
+            <i data-lucide="wind" class="app-icon" style="width: 14px; height: 14px;"></i> Ballonnements
+          </div>
+          <div class="symptom-pill" data-symptom="fatigue">
+            <i data-lucide="bed-double" class="app-icon" style="width: 14px; height: 14px;"></i> Fatigue intense
+          </div>
+          <div class="symptom-pill" data-symptom="acne">
+            <i data-lucide="sparkles" class="app-icon" style="width: 14px; height: 14px;"></i> Acné
+          </div>
+          <div class="symptom-pill" data-symptom="cravings">
+            <i data-lucide="cookie" class="app-icon" style="width: 14px; height: 14px;"></i> Fringales
+          </div>
+          <div class="symptom-pill" data-symptom="backpain">
+            <i data-lucide="user" class="app-icon" style="width: 14px; height: 14px;"></i> Mal de dos
+          </div>
+          <div class="symptom-pill" data-symptom="libido">
+            <i data-lucide="flame" class="app-icon" style="width: 14px; height: 14px;"></i> Libido accrue
+          </div>
+          <div class="symptom-pill" data-symptom="cervical">
+            <i data-lucide="waves" class="app-icon" style="width: 14px; height: 14px;"></i> Glaire cervicale
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group" style="margin-bottom: 1.1rem;">
+        <label for="journal-temp" class="form-label">
+          <i data-lucide="thermometer" class="app-icon icon-rose" style="width: 16px; height: 16px;"></i>
+          Température Basale (°C, optionnel) :
+        </label>
+        <input type="number" step="0.01" min="34" max="43" id="journal-temp" class="form-input" inputmode="decimal" placeholder="Ex: 36.6">
+      </div>
+
+      <div class="form-group" style="margin-bottom: 1.5rem;">
+        <label for="journal-notes" class="form-label">
+          <i data-lucide="pen-line" class="app-icon icon-rose" style="width: 16px; height: 16px;"></i>
+          Notes personnelles & Pensées :
+        </label>
+        <textarea id="journal-notes" class="form-textarea" rows="3" maxlength="2000" placeholder="Comment vous sentez-vous aujourd'hui ? Gratitude, envies, sensations..."></textarea>
+      </div>
+
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <button id="journal-save-btn" class="btn-primary">
+          <i data-lucide="check" class="app-icon" style="width: 18px; height: 18px;"></i>
+          <span>Enregistrer mes observations</span>
+        </button>
+        <button id="journal-delete-btn" class="btn-secondary" style="color: #c62828; border-color: rgba(198, 40, 40, 0.3); display: none;">
+          <i data-lucide="trash-2" class="app-icon" style="width: 16px; height: 16px;"></i>
+          <span>Supprimer</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       Modale : Création d'une utilisatrice (Super Admin)
+       ========================================================================== -->
+  <div id="admin-create-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="modal-card" style="max-width: 460px;">
+      <div class="modal-header">
+        <h3 class="card-title" style="display: flex; align-items: center; gap: 0.45rem;">
+          <i data-lucide="user-plus" class="app-icon icon-gold" style="width: 20px; height: 20px;"></i>
+          <span>Ajouter une utilisatrice</span>
+        </h3>
+        <button class="modal-close-btn" data-close-modal aria-label="Fermer">&times;</button>
+      </div>
+      <form id="admin-create-form" autocomplete="off">
+        <div class="form-group" style="margin-bottom: 0.85rem;">
+          <label class="form-label" for="admin-new-name">Prénom</label>
+          <input type="text" id="admin-new-name" name="admin-new-name" class="form-input" maxlength="60" required>
+        </div>
+        <div class="form-group" style="margin-bottom: 0.85rem;">
+          <label class="form-label" for="admin-new-email">Adresse email</label>
+          <input type="email" id="admin-new-email" name="admin-new-email" class="form-input" required>
+        </div>
+        <div class="form-group" style="margin-bottom: 0.85rem;">
+          <label class="form-label" for="admin-new-age">Âge (optionnel)</label>
+          <input type="number" id="admin-new-age" name="admin-new-age" class="form-input" min="10" max="99" inputmode="numeric">
+        </div>
+        <div class="form-group" style="margin-bottom: 1.25rem;">
+          <label class="form-label" for="admin-new-password">Mot de passe temporaire</label>
+          <input type="text" id="admin-new-password" name="admin-new-password" class="form-input" minlength="6" required>
+        </div>
+        <button type="submit" class="btn-primary" style="width: 100%;">
+          <i data-lucide="user-check" class="app-icon" style="width: 18px; height: 18px;"></i>
+          <span>Créer le compte</span>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       Modale : Confirmation
+       ========================================================================== -->
+  <div id="confirm-modal" class="modal-overlay" role="alertdialog" aria-modal="true" aria-hidden="true">
+    <div class="modal-card" style="max-width: 420px;">
+      <p id="confirm-modal-message" class="confirm-message"></p>
+      <div class="confirm-actions">
+        <button type="button" class="btn-secondary" data-close-modal><span>Annuler</span></button>
+        <button type="button" id="confirm-modal-ok" class="btn-primary"><span>Confirmer</span></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       Écran de verrouillage par code PIN
+       ========================================================================== -->
+  <div id="lock-screen" class="lock-screen" role="dialog" aria-modal="true" aria-label="Application verrouillée">
+    <div class="lock-card">
+      <div class="lock-logo">🌸</div>
+      <h2>LaGo est verrouillée</h2>
+      <p>Entrez votre code PIN pour accéder à votre journal.</p>
+      <form id="lock-form" autocomplete="off">
+        <input type="password" id="lock-pin-input" class="lock-pin-input" inputmode="numeric" maxlength="6" aria-label="Code PIN">
+        <div id="lock-error" class="lock-error" role="alert"></div>
+        <div class="pin-pad">
+          <button type="button" data-pin-key="1">1</button><button type="button" data-pin-key="2">2</button><button type="button" data-pin-key="3">3</button>
+          <button type="button" data-pin-key="4">4</button><button type="button" data-pin-key="5">5</button><button type="button" data-pin-key="6">6</button>
+          <button type="button" data-pin-key="7">7</button><button type="button" data-pin-key="8">8</button><button type="button" data-pin-key="9">9</button>
+          <button type="submit" class="pin-ok" aria-label="Valider">OK</button><button type="button" data-pin-key="0">0</button><button type="button" data-pin-key="del" aria-label="Effacer">⌫</button>
+        </div>
+      </form>
+      <button type="button" id="lock-forgot-btn" class="lock-forgot">Code oublié ? Se reconnecter avec mon mot de passe</button>
+    </div>
+  </div>
+
+  <!-- Bouton flottant "Noter mon jour" (version mobile) -->
+  <button id="mobile-fab-log" class="mobile-fab" aria-label="Noter mon jour">
+    <i data-lucide="plus" class="app-icon" style="width: 26px; height: 26px;"></i>
+  </button>
+
+  <!-- Conteneur des Toasts -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- ==========================================================================
+       Pied de page (Footer LaGo)
+       ========================================================================== -->
+  <footer class="app-footer">
+    <div class="footer-lotus-icon">
+      <i data-lucide="flower-2" class="app-icon icon-rose" style="width: 26px; height: 26px;"></i>
+    </div>
+    <p><strong>LaGo</strong> 🌸👧 • Votre alliée bienveillance & calcul du cycle féminin.</p>
+    <p style="font-size: 0.78rem; margin-top: 0.25rem; opacity: 0.8;">
+      Conçu avec douceur et respect absolu de la vie privée. Les prévisions sont données à titre indicatif et ne remplacent pas un avis médical.
+    </p>
+  </footer>
+
+  <!-- Scripts JavaScript Hébergés 100% en Local (aucun script inline : CSP stricte) -->
+  <script src="js/utils.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/calculator.js"></script>
+  <script src="js/tracker.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/admin.js"></script>
+  <script src="js/lotus-animation.js"></script>
+  <script src="js/calendar.js"></script>
+  <script src="js/platform.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

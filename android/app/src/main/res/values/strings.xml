@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">LaGo</string>
+    <string name="title_activity_main">LaGo</string>
+    <string name="package_name">app.lago.cycle</string>
+    <string name="custom_url_scheme">app.lago.cycle</string>
+</resources>

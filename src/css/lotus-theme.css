@@ -1,0 +1,153 @@
+/* ==========================================================================
+   CODE GIRL - Styles et Animations Florales : Thème Lotus & Pétales
+   ========================================================================== */
+
+/* Arrière-plan animé avec pétales flottants */
+#petals-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.75;
+  transition: opacity 0.5s ease;
+}
+
+body.no-petals #petals-canvas {
+  opacity: 0;
+}
+
+/* Nénuphars et lueurs décoratives d'arrière-plan */
+.bg-lotus-watermark-left, .bg-lotus-watermark-right {
+  position: fixed;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.12;
+  transition: opacity 0.5s ease;
+}
+
+.bg-lotus-watermark-left {
+  bottom: -40px;
+  left: -40px;
+  width: 320px;
+  height: 320px;
+  animation: floatWatermark 14s ease-in-out infinite alternate;
+}
+
+.bg-lotus-watermark-right {
+  top: 60px;
+  right: -50px;
+  width: 380px;
+  height: 380px;
+  animation: floatWatermark 18s ease-in-out infinite alternate-reverse;
+}
+
+@keyframes floatWatermark {
+  0% { transform: translate(0, 0) rotate(0deg); }
+  50% { transform: translate(15px, 20px) rotate(4deg); }
+  100% { transform: translate(-10px, -15px) rotate(-3deg); }
+}
+
+/* ==========================================================================
+   Fleur de Lotus SVG Interactive & Morphing
+   ========================================================================== */
+.lotus-svg-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.lotus-svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  filter: drop-shadow(0 6px 12px rgba(232, 93, 117, 0.3));
+  transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Pétales de la fleur */
+.lotus-petal {
+  transition: transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1), fill 0.8s ease, opacity 0.8s ease;
+  transform-origin: 50% 85%;
+}
+
+.lotus-center {
+  fill: #ffd54f;
+  transition: fill 0.6s ease;
+}
+
+/* Éats de floraison du Lotus selon la phase */
+/* Phase 1 : Menstruelle (Lotus fermé / Bouton doux) */
+.lotus-stage-menstrual .petal-left { transform: rotate(10deg) scale(0.92); fill: #ef9a9a; }
+.lotus-stage-menstrual .petal-right { transform: rotate(-10deg) scale(0.92); fill: #ef9a9a; }
+.lotus-stage-menstrual .petal-center { transform: scale(0.95); fill: #e57373; }
+.lotus-stage-menstrual .petal-outer-left { transform: rotate(18deg) scale(0.85); opacity: 0.6; fill: #ffcdd2; }
+.lotus-stage-menstrual .petal-outer-right { transform: rotate(-18deg) scale(0.85); opacity: 0.6; fill: #ffcdd2; }
+
+/* Phase 2 : Folliculaire (Éclosion douce / Renouveau) */
+.lotus-stage-follicular .petal-left { transform: rotate(-12deg) scale(1); fill: #f48fb1; }
+.lotus-stage-follicular .petal-right { transform: rotate(12deg) scale(1); fill: #f48fb1; }
+.lotus-stage-follicular .petal-center { transform: scale(1.02); fill: #ec407a; }
+.lotus-stage-follicular .petal-outer-left { transform: rotate(-22deg) scale(0.95); opacity: 0.85; fill: #f8bbd0; }
+.lotus-stage-follicular .petal-outer-right { transform: rotate(22deg) scale(0.95); opacity: 0.85; fill: #f8bbd0; }
+
+/* Phase 3 : Ovulatoire (Pleine Floraison Radieuse) */
+.lotus-stage-ovulation .petal-left { transform: rotate(-24deg) scale(1.08); fill: #f06292; }
+.lotus-stage-ovulation .petal-right { transform: rotate(24deg) scale(1.08); fill: #f06292; }
+.lotus-stage-ovulation .petal-center { transform: scale(1.12); fill: #d81b60; filter: drop-shadow(0 0 8px rgba(255, 213, 79, 0.8)); }
+.lotus-stage-ovulation .petal-outer-left { transform: rotate(-44deg) scale(1.05); opacity: 0.95; fill: #f8bbd0; }
+.lotus-stage-ovulation .petal-outer-right { transform: rotate(44deg) scale(1.05); opacity: 0.95; fill: #f8bbd0; }
+.lotus-stage-ovulation .lotus-center { fill: #ffb300; filter: drop-shadow(0 0 6px #ffca28); }
+
+/* Phase 4 : Lutéale (Sérénité & Retour au calme) */
+.lotus-stage-luteal .petal-left { transform: rotate(-8deg) scale(0.98); fill: #ffb74d; }
+.lotus-stage-luteal .petal-right { transform: rotate(8deg) scale(0.98); fill: #ffb74d; }
+.lotus-stage-luteal .petal-center { transform: scale(1); fill: #ffa726; }
+.lotus-stage-luteal .petal-outer-left { transform: rotate(-14deg) scale(0.9); opacity: 0.75; fill: #ffe0b2; }
+.lotus-stage-luteal .petal-outer-right { transform: rotate(14deg) scale(0.9); opacity: 0.75; fill: #ffe0b2; }
+
+/* Pulsation douce du lotus actif */
+.lotus-pulse {
+  animation: lotusBreath 4.5s ease-in-out infinite;
+}
+
+@keyframes lotusBreath {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.04); }
+}
+
+/* ==========================================================================
+   Bannière Lotus et Décorations
+   ========================================================================== */
+.lotus-divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin: 2rem 0 1.5rem;
+  color: var(--primary-pink);
+  opacity: 0.6;
+}
+
+.lotus-divider::before, .lotus-divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(244, 143, 177, 0.4), transparent);
+}
+
+/* Puces & Badges floraux */
+.lotus-bullet {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  background: var(--primary-pink);
+  border-radius: 50% 0 50% 50%;
+  transform: rotate(45deg);
+  margin-right: 0.4rem;
+}

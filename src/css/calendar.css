@@ -1,0 +1,232 @@
+/* ==========================================================================
+   CODE GIRL - Styles du Calendrier Menstruel Interactif
+   ========================================================================== */
+
+.calendar-header-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.calendar-month-year {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  text-transform: capitalize;
+}
+
+.calendar-nav-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* Grille du Calendrier */
+.calendar-grid-wrapper {
+  background: rgba(255, 255, 255, 0.65);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--card-border);
+  padding: 1rem;
+  overflow: hidden;
+}
+
+body.dark-mode .calendar-grid-wrapper {
+  background: rgba(31, 20, 29, 0.5);
+}
+
+.calendar-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  text-align: center;
+  font-weight: 700;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid rgba(244, 143, 177, 0.2);
+  margin-bottom: 0.5rem;
+}
+
+.calendar-days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+}
+
+.calendar-day-cell {
+  aspect-ratio: 1;
+  min-height: 52px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 0.35rem 0.2rem;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  position: relative;
+  user-select: none;
+}
+
+body.dark-mode .calendar-day-cell {
+  background: rgba(43, 27, 39, 0.7);
+}
+
+.calendar-day-cell:hover {
+  transform: translateY(-2px);
+  border-color: var(--primary-pink);
+  box-shadow: var(--shadow-sm);
+  z-index: 2;
+}
+
+.calendar-day-cell.empty {
+  background: transparent;
+  cursor: default;
+  border: none;
+}
+.calendar-day-cell.empty:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+.day-number {
+  font-size: 0.88rem;
+  font-weight: 600;
+  line-height: 1;
+  margin-bottom: 2px;
+}
+
+.calendar-day-cell.today {
+  border: 2px solid var(--primary-pink);
+  font-weight: 700;
+}
+
+.calendar-day-cell.today .day-number {
+  color: var(--primary-pink);
+}
+
+/* Coloration des jours selon le cycle */
+.calendar-day-cell.period-day {
+  background: #ffebee;
+  border-color: #ef9a9a;
+  color: #c62828;
+}
+body.dark-mode .calendar-day-cell.period-day {
+  background: #531c23;
+  color: #ffcdd2;
+}
+
+.calendar-day-cell.period-predicted {
+  background: rgba(255, 235, 238, 0.65);
+  border: 1.5px dashed #e57373;
+  color: #d32f2f;
+}
+
+.calendar-day-cell.ovulation-day {
+  background: #f3e5f5;
+  border: 2px solid #ba68c8;
+  color: #6a1b9a;
+  box-shadow: 0 0 10px rgba(186, 104, 200, 0.4);
+}
+body.dark-mode .calendar-day-cell.ovulation-day {
+  background: #3e1b4a;
+  color: #e1bee7;
+}
+
+.calendar-day-cell.fertile-day {
+  background: #e0f2f1;
+  border-color: #80cbc4;
+  color: #00695c;
+}
+body.dark-mode .calendar-day-cell.fertile-day {
+  background: #173b37;
+  color: #b2dfdb;
+}
+
+.calendar-day-cell.selected {
+  outline: 2px solid var(--gold-accent);
+  transform: scale(1.05);
+  z-index: 3;
+}
+
+/* Pastilles et marqueurs dans la cellule */
+.day-indicators-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  margin-top: auto;
+}
+
+.indicator-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+}
+
+.indicator-period { background: var(--phase-menstrual); }
+.indicator-ovulation { background: var(--phase-ovulation); }
+.indicator-fertile { background: var(--fertile-window); }
+.indicator-symptom { background: var(--gold-accent); }
+
+.day-symptom-icon {
+  font-size: 0.68rem;
+  line-height: 1;
+}
+
+/* Légende du Calendrier */
+.calendar-legend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 1.25rem;
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(244, 143, 177, 0.2);
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.82rem;
+  color: var(--text-dark);
+  font-weight: 500;
+}
+
+.legend-box {
+  width: 14px;
+  height: 14px;
+  border-radius: 4px;
+  border: 1px solid transparent;
+}
+
+.legend-period { background: #ffebee; border-color: #ef9a9a; }
+.legend-fertile { background: #e0f2f1; border-color: #80cbc4; }
+.legend-ovulation { background: #f3e5f5; border-color: #ba68c8; }
+.legend-predicted { background: rgba(255, 235, 238, 0.6); border: 1px dashed #e57373; }
+.legend-symptoms { background: var(--gold-light); border-color: var(--gold-accent); }
+
+@media (max-width: 600px) {
+  .calendar-days {
+    gap: 4px;
+  }
+  .calendar-day-cell {
+    min-height: 44px;
+    padding: 0.25rem 0.1rem;
+  }
+  .day-number {
+    font-size: 0.78rem;
+  }
+  .calendar-legend {
+    gap: 0.75rem;
+  }
+  .legend-item {
+    font-size: 0.75rem;
+  }
+}
