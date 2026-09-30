@@ -1,1 +1,59 @@
 
+# Compile automatiquement l'APK Android de LaGo (version Capacitor) sur GitHub.
+# Actions › Android APK › Run workflow  ->  fichier dans « Artifacts ».
+# Le SDK Android est déjà installé sur les machines ubuntu-latest de GitHub :
+# aucune action d'installation supplémentaire n'est nécessaire.
+name: Android APK
+
+on:
+  workflow_dispatch:
+    inputs:
+      api_url:
+        description: "URL publique de l'API LaGo (vide = app 100 % locale)"
+        required: false
+        default: ""
+  push:
+    tags: ["v*"]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Vérifier le SDK Android préinstallé
+        run: |
+          echo "ANDROID_HOME=$ANDROID_HOME"
+          test -d "$ANDROID_HOME" || { echo "SDK Android introuvable"; exit 1; }
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null || true
+
+      - run: npm ci
+      - run: npm test
+
+      - name: Build mobile + sync Android
+        env:
+          LAGO_API_URL: ${{ github.event.inputs.api_url }}
+        run: |
+          node scripts/build.js mobile
+          npx cap sync android
+
+      - name: Assemble debug APK
+        working-directory: android
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleDebug --no-daemon --stacktrace
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: lago-debug-apk
+          path: android/app/build/outputs/apk/debug/app-debug.apk
